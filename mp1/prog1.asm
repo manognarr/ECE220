@@ -96,9 +96,163 @@ GET_NEXT
 
 
 
+
+
+;registers for this code
+	;R0-to display digits
+	;R1-keeps track of which bin it is currently on
+	;R2-keeps track of how many digits are printed for each bin
+	;R3-helps keep track of values after subtracting
+	;R4-the data from each bin in the histogram
+	;R5-the digit to be displayed 
+	;R6-keeps track of bits to determine what digit should be displayed 
+
+
+;clear the register values
+;load the address of the first character in the stringt 
+;and put it into R4 
+;get the data from that bin and put it into R4
+;set R1 to the value of the number of bins so 
+;it can keep track of how many bins are displayed
+;if that value is zero, all the bins are displayed 
+;bin counter keeps track of the bin number so the right 
+;number is added to the address to access the right bin in
+;the histogram and prints the right letter that is 
+;associated with th that historam bin
+;constantly keeps track of how many digits are displayed 
+;and how many bits are in the digit register and shifts
+;the registers based on the values in the register
+
 PRINT_HIST
 
-; you will need to insert your code to print the histogram here
+	AND R0, R0, #0
+	AND R1, R1, #0			; bin counter
+	AND R2, R2, #0			; digit counter
+	AND R3, R3, #0			; rando reg for subtracting
+	AND R5, R5, #0
+	AND R4, R4, #0			; the data in each bin
+	AND R6, R6, #0
+	
+	LD R4, HIST_ADDR		; put the bin data into register 4
+	LDR R4, R4, #0
+
+	LD R1, NUM_BINS			; keeps track of which letter you are printing
+	BRz DONE 				; if printed all the letters and bins, then done
+	
+	
+;prints the letter according to the current histogram bin
+PRINTLABEL
+	AND R0, R0, #0 			;puts new line into R0 and displays it 
+	ADD R0, R0, #10
+	OUT
+
+	AND R3, R3, #0			;uses NUM_BINS and R6(bin counter)
+	NOT R3, R1				;to determine the current bin and then 
+	ADD R3, R3, #1			;displays the appropriate letter based
+	LD R6, NUM_BINS			;on the value of R6 and the ascii val of A
+	ADD R3, R3, R6
+	LD R0, HEXFORAT
+	ADD R0, R3, R0
+	OUT						;displaying out the label
+
+	AND R0, R0, #0			;displaying a space
+	LD R0, SPACELAB
+	OUT
+	
+	BRnzp BRINGBACK			;go back to go to the next bin
+	
+;checks how many digits are printed, and resets the values 
+;of R5 and R6 if all 4 digits for one bin are displayed
+DIGITSPRINTED
+	AND R3, R3, #0
+	ADD R3, R2, #-4			; checks the digit counter - 4 to see how many printed digits
+	BRz DONEWITHDIGITS  	; if the digits is 4, then it is done with digits
+	AND R5, R5, #0			;resets registers
+	AND R6, R6, #0
+
+	
+;checks if 4 bits are put into R5 the digit register
+;also checks to see if R4(register with data from bin)
+;has a 1 or 0 in the msb						
+BITSNOTFOUR 
+	AND R3, R3, #0 
+	ADD R3, R6, #-4			; check to see how many bits in R4
+	BRz BITCOUNTREADY		; if bitcount R6 is 4, then it is done
+	ADD R4, R4, #0		
+	BRn PUTBITINDIGIT		;if the msb is 1, then it goes to the label
+	ADD R5, R5, R5			;shifts R5 to make sure there is space for another bit
+	ADD R5, R5, #0			; put 0 into the 4 bit digit
+	ADD R3, R3, #0
+	BRn SHIFT				; until the bit counter is 4, it has to go to shift
+	BRnzp BITSNOTFOUR		;loops back to beg until done with 4 bits
+
+;shifts the data register and adds one to the bit counter
+SHIFT
+	ADD R4, R4, R4
+	ADD R6, R6, #1
+	BRnzp BITSNOTFOUR		;loops back to check if the bit counter is 4
+	
+;if the msb is 1, it puts the value 1 into the digit(R5)
+PUTBITINDIGIT	
+	ADD R5, R5, R5			; shifts register to make space
+	ADD R5, R5, #1			; adds one to the data reg
+	BRnzp SHIFT				; goes to shift the data and inc bit counter
+
+;if 4 bits are done, the digit is checked to see if it is < or > than 9
+BITCOUNTREADY
+	AND R3, R3, #0			; digit is ready so check if digit is less than 9
+	ADD R3, R3, #-9
+	ADD R3, R5, R3 			; check if digit count - 9 > 0 
+	BRnz OUTO				; if if n or z, then less or eq to 9
+
+;if digit is greater than 9, displays appropriate value
+NOTUNDER9					 
+	LD R0, HEXFORA
+	ADD R0, R0, #-10
+	ADD R0, R5, R0
+	OUT
+	ADD R2, R2, #1			; print a digit, incrememnt digit counter
+	BRnzp DIGITSPRINTED		; go back to check how many digits are displayed
+
+;if digit is less than or eq to 9, display digit
+OUTO
+	AND R0, R0, #0
+	LD R3, FORTYEIGHT
+	ADD R0, R5, R3		    ; out the digit in hex
+	OUT
+	ADD R2, R2, #1          ; increment digit counter
+	BRnzp DIGITSPRINTED
+
+FORTYEIGHT .FILL #48		; used to display 0
+
+;when each bin is complete, load the address of the first
+;character and then use the bin counter (R6) to figure 
+;out which bin is next
+MOREBINS
+	LD R6, HIST_ADDR		;load the addr from label 
+	ADD R3, R6, R3
+	LDR R4, R3, #0			;add the bin counter to the address to 	
+	AND R6, R6, #0 			;find the right bin 
+	BRnzp BITSNOTFOUR		;start with checking how many bits are checked
+
+SPACELAB .FILL x0020
+
+;when done with digits in a bin, checks bin counter(R6) to see
+;if all the bins are displayed and if not, goes to the print the 
+;letter that is the next bin 
+DONEWITHDIGITS
+	AND R2, R2, #0	
+	AND R5, R5, #0			;reset values
+	AND R6, R6, #0			;bin counter
+	ADD R1, R1, #-1
+	BRz DONE
+	BRnzp PRINTLABEL
+
+BRINGBACK
+	BRnzp MOREBINS
+
+HEXFORA .FILL #65
+HEXFORAT .FILL #64
 
 ; do not forget to write a brief description of the approach/algorithm
 ; for your implementation, list registers used in this part of the code,
@@ -115,12 +269,15 @@ NEG_AT		.FILL xFFC0	; the additive inverse of ASCII '@'
 AT_MIN_Z	.FILL xFFE6	; the difference between ASCII '@' and 'Z'
 AT_MIN_BQ	.FILL xFFE0	; the difference between ASCII '@' and '`'
 HIST_ADDR	.FILL x3F00     ; histogram starting address
-STR_START	.FILL x4000	; string starting address
+;STR_START	.FILL x4000	; string starting address
 
 ; for testing, you can use the lines below to include the string in this
 ; program...
-; STR_START	.FILL STRING	; string starting address
-; STRING		.STRINGZ "This is a test of the counting frequency code.  AbCd...WxYz."
+  STR_START	.FILL STRING	; string starting address
+  STRING		.STRINGZ "This is a test of the counting frequency code.  AbCd...WxYz."
+
+ ;STR_START	.FILL STRING	; string starting address
+ ;STRING		.STRINGZ "AAAAAAAAAAAAA"
 
 
 
