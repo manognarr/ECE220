@@ -1,0 +1,191 @@
+Compilation Results:
+********************
+STARTING PASS 1
+0 errors found in first pass.
+STARTING PASS 2
+0 errors found in second pass.
+
+Test Case 1
+
+Welcome to the LC-3 simulator.
+
+The contents of the LC-3 tools distribution, including sources, management
+tools, and data, are Copyright (c) 2003 Steven S. Lumetta.
+
+The LC-3 tools distribution is free software covered by the GNU General
+Public License, and you are welcome to modify it and/or distribute copies
+of it under certain conditions.  The file COPYING (distributed with the
+tools) specifies those conditions.  There is absolutely no warranty for
+the LC-3 tools distribution, as described in the file NO_WARRANTY (also
+distributed with the tools).
+
+Have fun.
+
+
+--- halting the LC-3 ---
+
+PC=x0494 IR=xB1AE PSR=x0400 (ZERO)
+R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
+                   x0494 x0FF9 BRNZP TRAP_HALT
+Loaded "grade/test1.obj" and set PC to x4000
+Loaded "prog1.obj" and set PC to x3000
+
+@ 000F
+A 0002
+B 0001
+C 0004
+D 0002
+E 0005
+F 0002
+G 0001
+H 0002
+I 0003
+J 0000
+K 0000
+L 0000
+M 0000
+N 0003
+O 0003
+P 0000
+Q 0001
+R 0001
+S 0003
+T 0005
+U 0002
+V 0000
+W 0001
+X 0001
+Y 0002
+Z 0001
+
+--- halting the LC-3 ---
+
+PC=x0494 IR=xB1AE PSR=x0400 (ZERO)
+R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
+                   x0494 x0FF9 BRNZP TRAP_HALT
+
+Test Case 2
+
+Welcome to the LC-3 simulator.
+
+The contents of the LC-3 tools distribution, including sources, management
+tools, and data, are Copyright (c) 2003 Steven S. Lumetta.
+
+The LC-3 tools distribution is free software covered by the GNU General
+Public License, and you are welcome to modify it and/or distribute copies
+of it under certain conditions.  The file COPYING (distributed with the
+tools) specifies those conditions.  There is absolutely no warranty for
+the LC-3 tools distribution, as described in the file NO_WARRANTY (also
+distributed with the tools).
+
+Have fun.
+
+
+--- halting the LC-3 ---
+
+PC=x0494 IR=xB1AE PSR=x0400 (ZERO)
+R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
+                   x0494 x0FF9 BRNZP TRAP_HALT
+Loaded "grade/test2.obj" and set PC to x4000
+Loaded "prog1.obj" and set PC to x3000
+
+@ 000F
+A 0002
+B 0001
+C 0004
+D 0002
+E 0005
+F 0002
+G 0001
+H 0002
+I 0003
+J 0000
+K 0000
+L 0000
+M 0000
+N 0003
+O 0003
+P 0000
+Q 0001
+R 0001
+S 0003
+T 0005
+U 0002
+V 0000
+W 0001
+X 0001
+Y 0002
+Z 0001
+
+--- halting the LC-3 ---
+
+PC=x0494 IR=xB1AE PSR=x0400 (ZERO)
+R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
+                   x0494 x0FF9 BRNZP TRAP_HALT
+
+Test Case 3
+
+Welcome to the LC-3 simulator.
+
+The contents of the LC-3 tools distribution, including sources, management
+tools, and data, are Copyright (c) 2003 Steven S. Lumetta.
+
+The LC-3 tools distribution is free software covered by the GNU General
+Public License, and you are welcome to modify it and/or distribute copies
+of it under certain conditions.  The file COPYING (distributed with the
+tools) specifies those conditions.  There is absolutely no warranty for
+the LC-3 tools distribution, as described in the file NO_WARRANTY (also
+distributed with the tools).
+
+Have fun.
+
+
+--- halting the LC-3 ---
+
+PC=x0494 IR=xB1AE PSR=x0400 (ZERO)
+R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
+                   x0494 x0FF9 BRNZP TRAP_HALT
+Loaded "grade/test3.obj" and set PC to x4000
+Loaded "prog1.obj" and set PC to x3000
+
+@ 000F
+A 0002
+B 0001
+C 0004
+D 0002
+E 0005
+F 0002
+G 0001
+H 0002
+I 0003
+J 0000
+K 0000
+L 0000
+M 0000
+N 0003
+O 0003
+P 0000
+Q 0001
+R 0001
+S 0003
+T 0005
+U 0002
+V 0000
+W 0001
+X 0001
+Y 0002
+Z 0001
+
+--- halting the LC-3 ---
+
+PC=x0494 IR=xB1AE PSR=x0400 (ZERO)
+R0=x0000 R1=x7FFF R2=x0000 R3=x0000 R4=x0000 R5=x0000 R6=x0000 R7=x0490 
+                   x0494 x0FF9 BRNZP TRAP_HALT
+
+Grade:
+******
+Late submission: 0
+Functionality: 30
+Comments and Style: 5
+Intro paragraph: 5
+Total: 40
