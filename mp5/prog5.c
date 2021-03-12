@@ -43,9 +43,22 @@ void print_pool() {
  */
 int is_valid(char* str) {
     int i = 0;
+   // int counter=0;
     if (str == NULL) {
         return 0;
     }
+
+
+    // while(*str!='\0'){
+    //     counter++;
+    //     str+=1;
+    // }
+
+    // if (counter>4){
+    //     printf("Invalid length");
+    //     return 0;
+    // }
+    //printf("%s", str);
     for (i = 0; i < 8; i++) {
         if (strcmp(str, pool[i]) == 0) {
             return 1;
@@ -87,8 +100,15 @@ int set_seed (const char seed_str[]) {
     int seed;
     char post[2];
     if (sscanf (seed_str, "%d%1s", &seed, post) != 1) {
-      // your code here
+      printf("%s", "set_seed: invalid seed\n");
+      return 0;
     }
+
+    else{
+          srand(seed);
+          return 1;
+      }
+    
     // your code here
 }
 
@@ -108,6 +128,31 @@ int set_seed (const char seed_str[]) {
  */
 void start_game () {
     //your code here
+   int index=0;
+  // char* word="";
+   
+    for (int i=0; i<4; i++){
+        index=rand()%8;
+       
+        //word=pool[index];
+
+        //for (int n=0; n<strlen(word); n++){
+            //char letter=word[n];
+            //solutions[i][n]=letter;
+       // }
+       memset(solutions[i], '\0', 10);
+       strcpy(solutions[i], pool[index]);
+        
+       
+    }
+    // printf("%s\n", solutions[0]);
+    //printf("%s\n", solutions[1]);
+   // printf("%s\n", solutions[2]);
+  // printf("%s\n", solutions[3]);
+    guess_number=1;
+    max_score=-1;
+   
+
 }
 
 /*
@@ -130,7 +175,129 @@ void start_game () {
  *               (NOTE: the output format MUST MATCH EXACTLY, check the wiki writeup)
  */
 int make_guess (const char guess_str[]) {
-  // your code here
+//   // your code here
+char guesstemp [strlen(guess_str)];
+char* guess [10];
+char guesses[4][10];
+char post[2];
+if(sscanf(guess_str, "%s%s%s%s%1s", guesses[0], guesses[1], guesses[2], guesses[3], post)!= 4)
+{
+    printf("number of input!= 4\n");
+    return 0;
 }
+
+int currentscore = 0;
+
+
+for (int a=0;a<strlen(guess_str); a++){
+    guesstemp[a]=guess_str[a];
+}
+
+
+ char* ptr = strtok(guesstemp," ");
+ 
+ int b=0;
+
+
+ while (ptr!=NULL){
+     guess[b]=ptr;
+     b++;
+     ptr=strtok(NULL, " ");
+    
+     
+ }
+
+
+for (int c=0; c<4; c++){
+if (is_valid(guess[c])!=1){
+      printf("%s", "make_guess: invalid guess\n");
+      return 0;
+  }
+
+int perfectmatches;
+   int misplacedmatches;
+ 
+   perfectmatches = 0;
+   misplacedmatches = 0;
+  
+ 
+ 
+//LOOP THROUGH SOLUTIONS
+   int guesscheck[4]={0,0,0,0};
+   int solcheck[4]={0,0,0,0};
+   for (int j=0; j<4; j++)
+   {
+       //printf("%s %s\n", guesses[j], solutions[j]);
+    if (strcmp(guesses[j], solutions[j])==0 )
+    {
+        //printf("%s", "Perfect match \n");
+               guesscheck[j]=1;
+               solcheck[j] = 1;
+               perfectmatches++;
+    }
+
+}
+
+  
+   printf("With guess %d, you got %d perfect matches and ",guess_number, perfectmatches);
+ 
+   for(int a = 0; a < 4; a++)
+   {
+       for(int b = 0; b < 4; b++)
+       {
+           if((strcmp(guesses[a], solutions[b]) == 0) && guesscheck[a]!= 1 && solcheck[b]!= 1 && a!=b)
+           {
+               guesscheck[a]=1;
+               solcheck[b]=1;
+               misplacedmatches++;
+               
+           }
+       }
+   }
+   currentscore = perfectmatches*1000 + misplacedmatches*100;
+    printf("%d misplaced matches.\n", misplacedmatches);
+    
+       if(currentscore >= max_score)
+       {
+           max_score = currentscore;
+       }
+       printf("Your score is %d and your current max score is %d.\n", currentscore, max_score );
+ 
+       if(perfectmatches == 4)
+       {
+           printf("You won in %d guesses", guess_number);
+           return 2;
+       }
+        guess_number++;
+       return 1;
+
+
+
+
+}
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+return 1;
+}
+  
+
+
+            
+
+
+
+
 
 
