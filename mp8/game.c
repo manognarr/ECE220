@@ -1,3 +1,9 @@
+//partners: manogna3, smruthi2
+//This program simulates 2048 using data structures and pointers 
+//in order to create an instance of the game data structure.
+//It utilizes  4 functions to slide the tiles and merge them accordingly.
+//It constantly accesses members of the data structures to check 
+//if values within a cell can be changed or if it is empty.
 #include "game.h"
 
 
@@ -13,18 +19,16 @@ game * make_game(int rows, int cols)
     game * mygame = malloc(sizeof(game));
     mygame->cells = malloc(rows*cols*sizeof(cell));
 
-    //YOUR CODE STARTS HERE:  Initialize all other variables in game struct
-    mygame->rows = rows;            //(*mygame).rows= reows
-    //(*mygame).rows= rows;
-
-    mygame->cols = cols;
+    //  Initialize all other variables in game struct
+    mygame->rows = rows;           //setting rows of game to inputted rows
+    mygame->cols = cols;            //setting cols of game to inputted cols
     for(int a = 0; a < rows*cols; a++)
     {
-        *(mygame->cells+a)= -1;
+        *(mygame->cells+a)= -1;     //initializes cells in game to -1
     }
-    mygame->score = 0; 
+    mygame->score = 0;          //sets score to 0
 
-    return mygame;
+    return mygame;                 // returns a game of struct game
 }
 
 void remake_game(game ** _cur_game_ptr,int new_rows,int new_cols)
@@ -39,16 +43,16 @@ void remake_game(game ** _cur_game_ptr,int new_rows,int new_cols)
 	free((*_cur_game_ptr)->cells);
 	(*_cur_game_ptr)->cells = malloc(new_rows*new_cols*sizeof(cell));
 
+     //  Initialize all other variables in game struct
     (*_cur_game_ptr)->rows = new_rows;
     (*_cur_game_ptr)->cols = new_cols;
+    //reinitializes cells in current game to -1
     for(int a = 0; a < new_rows*new_cols; a++)
     {
         *((*_cur_game_ptr)->cells+a) = -1;          
     }
+    //sets score to 0 again
     (*_cur_game_ptr)->score = 0; 
-
-	 //YOUR CODE STARTS HERE:  Re-initialize all other variables in game struct
-
 	return;	
 }
 
@@ -69,15 +73,16 @@ cell * get_cell(game * cur_game, int row, int col)
 	if the row and col coordinates do not exist.
 */
 {
-    //YOUR CODE STARTS HERE
-    if(row<0 || row >= cur_game->rows)
+
+    if(row<0 || row >= cur_game->rows)          //check if row exists and is within bounds
+    {
+        return NULL;                            //if not return null
+    }
+    if(col < 0 || col >= cur_game->cols)        //check if col exists and is within bounds
     {
         return NULL;
     }
-    if(col < 0 || col >= cur_game->cols)
-    {
-        return NULL;
-    }
+    //if cell is valid, then return the pointer to the cell 
     return cur_game->cells + row * cur_game->cols + col;   
 }
 
@@ -89,9 +94,11 @@ int move_w(game * cur_game)
    cell to change value, w is an invalid move and return 0. Otherwise, return 1. 
 */
 {
-    //slideup(&cur_game, cur_game->rows, cur_game->cols);
+    //initialize counter to keep track of how many changes are made
     int moved = 0;
+    //create an instance of game by using the make_game function
     game * copy_game = make_game(cur_game->rows, cur_game->cols);
+    //nested for loop that copies values from cur_game's cells to copygame's cells
     for(int a = 0; a < cur_game->rows; a++)
     {
         for(int b = 0; b < cur_game->cols; b++)
@@ -100,66 +107,75 @@ int move_w(game * cur_game)
         }
     }
     int i, j;
-    
+    //for loop that slides tiles upward in the game board
     for(j = 0; j < cur_game->cols; j++)
     {
+        //index of cell that is empty and can be filled
         int empty;
-
+        //empty for loop to find the first nonempty cell in the column
         for(empty = 0; empty<cur_game->rows && ((*(cur_game->cells+(empty * cur_game->cols + j))) !=-1); empty++);
-        //printf("%s", "in the slideup");
+        //for loop that checks the values after empty to move tiles up accordingly
         for(i = empty+1; i < cur_game->rows; i++)
         {
-            //printf("%s", "in the slideup for loop");
-            //printf("%d", (*(cur_game->cells+(empty * cur_game->cols + j))));
+            //if the tile isn't empty, it moves it up and sets the current cell to -1
             if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
             {
-               // printf("%s", "in the slideup if ");
                 (*(cur_game->cells+(empty * cur_game->cols + j))) = (*(cur_game->cells+(i * cur_game->cols + j)));
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
-                moved++;
-                empty++;
+                moved++;            //increments counter to keep track of # of changes
+                empty++;            //increments index
             }
         }
     }
 
     int m, n;
+    //nested for loop that merges two tiles when sliding upward based on the values of the tiles
     for(m = 0; m < cur_game->rows-1; m++)
     {
         for(n = 0; n < cur_game->cols; n++)
         {
+            //if a tile is empty, no merging takes place/skip
             if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
-
+            //otherwise, check if the values are equal
             if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+((m+1) * cur_game->cols + n)) ))
             {
+                //if so, merge and set top tile to double the value
                 (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
+                //increment score with the value of the merged tile
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
+                //set the bottom tile to empty(-1)
                 (*(cur_game->cells+((m+1) * cur_game->cols + n)) = -1);
+                //increment the counter that kweeps track of # of changes
                 moved++;
             }
         }
     }
 
-   // slideup(&cur_game, cur_game->rows, cur_game->cols);
+   
    int a, b;
+   //for loop that slides up the tiles after merging so holes will not exist
     for(b = 0; b < cur_game->cols; b++)
-    {
+    {   
         int empty;
-
+        //gets first nonempty cell
         for(empty = 0; empty<cur_game->rows && ((*(cur_game->cells+(empty * cur_game->cols + b))) !=-1); empty++);
-
+        //for loop that goes through from indes after empty
         for(a = empty+1; a < cur_game->rows; a++)
         {
+            //if the tiles is not empty
             if((*(cur_game->cells+(a * cur_game->cols + b))) !=-1)
             {
+                //setting the top tile to what the bottom tile's value is 
                 (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a* cur_game->cols + b)));
-               (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
+                //setting bottom tile to empty
+               (*(cur_game->cells+(a * cur_game->cols + b))) = -1; 
                moved++;
                 empty++;
             }
         }
     }
    
-    
+    //if there is no changes happening in the cells, return 0 so unnecessary shifts won't be made
     if(moved == 0)
     {
         return 0;
@@ -169,74 +185,81 @@ int move_w(game * cur_game)
 }
 
 
-
-
-int move_s(game * cur_game) //slide down
+int move_s(game * cur_game) //slide down function
 {
-    game * copy_game = make_game(cur_game->rows, cur_game->cols);
-    for(int a = 0; a < cur_game->rows; a++)
+    game * copy_game = make_game(cur_game->rows, cur_game->cols); //make instance of game in copy_game
+    for(int a = 0; a < cur_game->rows; a++) //nested for loop to copy values into copy_game
     {
         for(int b = 0; b < cur_game->cols; b++)
         {
-             *(copy_game->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+             *(copy_game->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b)); //copy game 
         }
     }
  int i, j;
  int moved = 0;
+ //for loop to iterate the cur_game values in the columns
     for(j = 0; j < cur_game->cols; j++)
     {
         int empty;
-
+    //for loop to go through the values
         for(empty = cur_game->rows; empty>=0 && ((*(cur_game->cells+(empty * cur_game->cols + j))) !=-1); empty--);
         for(i = empty-1; i >=0; i--)
         {
+            //check if value is no empty
             if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
             {
+                //set bottom tile to the value (slide down)
                 (*(cur_game->cells+(empty * cur_game->cols + j))) = (*(cur_game->cells+(i * cur_game->cols + j)));
+                //set the other tile to empty
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+            //increment moved 
                 moved++;
                 empty--;
             }
         }
     }
 
+
     int m, n;
+    //nested for loop to merge values
     for(m = cur_game->rows-1; m >=0 ; m--)
     {
         for(n = 0; n < cur_game->cols; n++)
         {
+            //check if it is not empty
             if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
-
+                //check if the tiles are equal
             if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+((m-1) * cur_game->cols + n)) ))
             {
-                (*(cur_game->cells+(m* cur_game->cols + n)) *= 2);
-                cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
-                (*(cur_game->cells+((m-1) * cur_game->cols + n)) = -1);
-                moved++;
+                (*(cur_game->cells+(m* cur_game->cols + n)) *= 2); //if they are equal, merge and set bottom tile to double the value
+                cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n))); //increment score
+                (*(cur_game->cells+((m-1) * cur_game->cols + n)) = -1); //set the top tile to empty, -1
+                moved++; //increment moved 
             }
         }
     }
 
    // slidedown(&cur_game, cur_game->rows, cur_game->cols);
    int a, b;
+   //for loop to iterate through the columns of cur_game
     for(b = 0; b < cur_game->cols; b++)
     {
         int empty;
-
+//iterate through the rows
         for(empty = cur_game->rows; empty>=0 && ((*(cur_game->cells+(empty * cur_game->cols + b))) !=-1); empty--);
         for(a = empty-1; a >=0; a--)
         {
-            if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1)
+            if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1) //check if its not empty
             {
-                (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a * cur_game->cols + b)));
-                (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
-                empty--;
-                moved++;
+                (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a * cur_game->cols + b))); //slide down
+                (*(cur_game->cells+(a * cur_game->cols + b))) = -1; //set top tile to empty, -1
+                empty--; //decrement empty
+                moved++; //increment moved
             }
         }
     }
  
-    if(moved == 0)
+    if(moved == 0) //check if moved is equal to 0 and no changes were made to the board
     {
         return 0; 
     }
@@ -244,9 +267,11 @@ int move_s(game * cur_game) //slide down
     
 }
 
+//moves slides left
 int move_a(game * cur_game) //slide left
 {
     int moved = 0;
+    //instance of game
     game * copy_game = make_game(cur_game->rows, cur_game->cols);
     for(int a = 0; a < cur_game->rows; a++)
     {
@@ -256,10 +281,13 @@ int move_a(game * cur_game) //slide left
         }
     }
     int i, j;
+    //for loop that slides tiles to the left
     for(i = 0; i < cur_game->rows; i++)
     {
         int empty;
+        //find nonemtpy cell
         for(empty = 0; empty<cur_game->cols && ((*(cur_game->cells+(i * cur_game->cols + empty))) !=-1); empty++);
+        //for loop that goes through left side of empty and slides them to the left
         for(j = empty+1; j < cur_game->cols; j++)
         {
             if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
@@ -267,7 +295,7 @@ int move_a(game * cur_game) //slide left
                 (*(cur_game->cells+(i * cur_game->cols + empty))) = (*(cur_game->cells+(i * cur_game->cols + j)));
                         
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
-                    
+                  //increment counter  
                 empty++;
                 moved++;
             }
@@ -277,28 +305,33 @@ int move_a(game * cur_game) //slide left
     int m, n;
     for(m = 0; m < cur_game->rows; m++)
     {
+        //nested for
         for(n = 0; n < cur_game->cols; n++)
-        {
+        {   
             if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
-
+            //merges the tiles to the left by doubling the tile on the left 
             if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+(m * cur_game->cols + (n+1))) ))
             {
                 (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
                 (*(cur_game->cells+(m * cur_game->cols + (n+1))) = -1);
+                //increment counter
                 moved++;
             }
         }
     }
 
-   // slideup(&cur_game, cur_game->rows, cur_game->cols);
    int a, b;
+   //for loop that slides tile left
     for(a = 0; a < cur_game->rows;a++)
     {
         int empty;
+        //finds nonempty
         for(empty = 0; empty<cur_game->cols && ((*(cur_game->cells+(a * cur_game->cols + empty))) !=-1); empty++);
+        
         for(b = empty+1; b < cur_game->cols; b++)
         {
+            //finds nonempty and moves it to the left 
             if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1)
             {
                 (*(cur_game->cells+(a * cur_game->cols + empty))) = (*(cur_game->cells+(a * cur_game->cols + b)));
@@ -310,6 +343,7 @@ int move_a(game * cur_game) //slide left
         }
     }
 
+    //checks if the values in cells are being changed, if not then just return 0
     if(moved == 0)
     {
         return 0; 
@@ -331,9 +365,11 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
     for(i = 0; i < cur_game->rows; i++)
     {
         int empty;
+        //finds nonempty cell in the list of tiles
         for(empty = cur_game->cols-1; empty>=0 && ((*(cur_game->cells+(i * cur_game->cols + empty))) !=-1); empty--);
         for(j = empty-1; j >= 0; j--)
         {
+            //if tile is not empty then set the tile on the right to the value, so tiles are slid to the right
             if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
             {
                 (*(cur_game->cells+(i * cur_game->cols + empty))) = (*(cur_game->cells+(i * cur_game->cols + j)));
@@ -351,25 +387,28 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
         for(n = cur_game->cols; n >=0 ; n--)
         {
             if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
-
+            //merging the values to the right and settring the tile on the right to double the value of 
+            //equivalent tiles
             if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+(m * cur_game->cols + (n-1))) ))
             {
                 (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
+                //sets other tile to empty
                 (*(cur_game->cells+(m * cur_game->cols + (n-1))) = -1);
                 moved++;
             }
         }
     }
 
-   // slideup(&cur_game, cur_game->rows, cur_game->cols);
    int a, b;
     for(a = 0; a < cur_game->rows; a++)
     {
         int empty;
+        //find nonempty cell
         for(empty = cur_game->cols-1; empty>=0 && ((*(cur_game->cells+(a * cur_game->cols + empty))) !=-1); empty--);
         for(b = empty-1; b >= 0; b--)
         {
+            //if the value is not empty then change the values of the tiles by sliding to the right
             if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1)
             {
                 (*(cur_game->cells+(a * cur_game->cols + empty))) = (*(cur_game->cells+(a * cur_game->cols + b)));
@@ -381,7 +420,7 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
         }
     }
 
-   
+   //if no changes made, return 0
     if(moved == 0)
     {
         return 0;
@@ -398,35 +437,42 @@ int legal_move_check(game * cur_game)
     
  */
 {
+    //nested for loop that goes through all the cells 
     for(int t = 0; t < cur_game->rows; t++)
     {
         for(int b = 0; b < cur_game->cols; b++)
         {
+            //if any cell is empty, the game can be played so return 1
             if( *(cur_game->cells + t*cur_game->cols+b) == -1)
                 return 1;
+                //chweck the values ot the left of the b to see if any adjacent values
             if(b > 0 )      //left case
             {
+                //if the values are the same, return 1 bc game can still be plahyed
                 if(*(cur_game->cells + t*cur_game->cols+(b-1) ) == *(cur_game->cells + t*cur_game->cols+(b)))
                     return 1;
             }
-             if(b < cur_game->cols-1 )      //left case
+            //check values to the right of b to see if any same values and return 1
+             if(b < cur_game->cols-1 )      //right case
             {
                 if(*(cur_game->cells + t*cur_game->cols+(b+1) ) == *(cur_game->cells + t*cur_game->cols+(b)))
                     return 1;
             }
-            if(t < cur_game->rows-1 )      //left case
+            //check values below it to see if any same values and return 1 
+            if(t < cur_game->rows-1 )      //down case
             {
                 if(*(cur_game->cells + (t+1)*cur_game->cols+b ) == *(cur_game->cells + t*cur_game->cols+b))
                     return 1;
             }
-            if(t > 0 )      //left case
+            //check values above it to see if any same values and return 1
+            if(t > 0 )      //up case
             {
                 if(*(cur_game->cells + (t-1)*cur_game->cols+b ) == *(cur_game->cells + t*cur_game->cols+b))
                     return 1;
             }
         }
     }
-
+    //if none of it is possible, return 0--> game endEDDDDDD
     return 0;
 }
 
