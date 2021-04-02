@@ -14,7 +14,15 @@ game * make_game(int rows, int cols)
     mygame->cells = malloc(rows*cols*sizeof(cell));
 
     //YOUR CODE STARTS HERE:  Initialize all other variables in game struct
+    mygame->rows = rows;            //(*mygame).rows= reows
+    //(*mygame).rows= rows;
 
+    mygame->cols = cols;
+    for(int a = 0; a < rows*cols; a++)
+    {
+        *(mygame->cells+a)= -1;
+    }
+    mygame->score = 0; 
 
     return mygame;
 }
@@ -30,6 +38,14 @@ void remake_game(game ** _cur_game_ptr,int new_rows,int new_cols)
 	 then dynamically allocates memory for cells in new game.  DO NOT MODIFY.*/
 	free((*_cur_game_ptr)->cells);
 	(*_cur_game_ptr)->cells = malloc(new_rows*new_cols*sizeof(cell));
+
+    (*_cur_game_ptr)->rows = new_rows;
+    (*_cur_game_ptr)->cols = new_cols;
+    for(int a = 0; a < new_rows*new_cols; a++)
+    {
+        *((*_cur_game_ptr)->cells+a) = -1;          
+    }
+    (*_cur_game_ptr)->score = 0; 
 
 	 //YOUR CODE STARTS HERE:  Re-initialize all other variables in game struct
 
@@ -54,8 +70,15 @@ cell * get_cell(game * cur_game, int row, int col)
 */
 {
     //YOUR CODE STARTS HERE
-
-    return NULL;
+    if(row<0 || row >= cur_game->rows)
+    {
+        return NULL;
+    }
+    if(col < 0 || col >= cur_game->cols)
+    {
+        return NULL;
+    }
+    return cur_game->cells + row * cur_game->cols + col;   
 }
 
 int move_w(game * cur_game)
@@ -66,40 +89,374 @@ int move_w(game * cur_game)
    cell to change value, w is an invalid move and return 0. Otherwise, return 1. 
 */
 {
-    //YOUR CODE STARTS HERE
+    //slideup(&cur_game, cur_game->rows, cur_game->cols);
+    game * copy_game = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+    int i, j;
+    
+    for(j = 0; j < cur_game->cols; j++)
+    {
+        int empty;
 
+        for(empty = 0; empty<cur_game->rows && ((*(cur_game->cells+(empty * cur_game->cols + j))) !=-1); empty++);
+        //printf("%s", "in the slideup");
+        for(i = empty+1; i < cur_game->rows; i++)
+        {
+            //printf("%s", "in the slideup for loop");
+            //printf("%d", (*(cur_game->cells+(empty * cur_game->cols + j))));
+            if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
+            {
+               // printf("%s", "in the slideup if ");
+                (*(cur_game->cells+(empty * cur_game->cols + j))) = (*(cur_game->cells+(i * cur_game->cols + j)));
+                (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+                empty++;
+            }
+        }
+    }
+
+    int m, n;
+    for(m = 0; m < cur_game->rows-1; m++)
+    {
+        for(n = 0; n < cur_game->cols; n++)
+        {
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
+
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+((m+1) * cur_game->cols + n)) ))
+            {
+                (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
+                cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
+                (*(cur_game->cells+((m+1) * cur_game->cols + n)) = -1);
+            }
+        }
+    }
+
+   // slideup(&cur_game, cur_game->rows, cur_game->cols);
+   int a, b;
+    for(b = 0; b < cur_game->cols; b++)
+    {
+        int empty;
+
+        for(empty = 0; empty<cur_game->rows && ((*(cur_game->cells+(empty * cur_game->cols + b))) !=-1); empty++);
+
+        for(a = empty+1; a < cur_game->rows; a++)
+        {
+            if((*(cur_game->cells+(a * cur_game->cols + b))) !=-1)
+            {
+                (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a* cur_game->cols + b)));
+               (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
+                empty++;
+            }
+        }
+    }
+     int count; 
+   for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
+                count++;
+        }
+    }
+    if(count == (cur_game->rows * cur_game->cols))
+        return 0;
     return 1;
-};
+}
+
+
+
 
 int move_s(game * cur_game) //slide down
 {
-    //YOUR CODE STARTS HERE
+    game * copy_game = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+ int i, j;
+    for(j = 0; j < cur_game->cols; j++)
+    {
+        int empty;
 
+        for(empty = cur_game->rows; empty>=0 && ((*(cur_game->cells+(empty * cur_game->cols + j))) !=-1); empty--);
+        for(i = empty-1; i >=0; i--)
+        {
+            if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
+            {
+                (*(cur_game->cells+(empty * cur_game->cols + j))) = (*(cur_game->cells+(i * cur_game->cols + j)));
+                (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+                empty--;
+            }
+        }
+    }
+
+    int m, n;
+    for(m = cur_game->rows-1; m >=0 ; m--)
+    {
+        for(n = 0; n < cur_game->cols; n++)
+        {
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
+
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+((m-1) * cur_game->cols + n)) ))
+            {
+                (*(cur_game->cells+(m* cur_game->cols + n)) *= 2);
+                cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
+                (*(cur_game->cells+((m-1) * cur_game->cols + n)) = -1);
+            }
+        }
+    }
+
+   // slidedown(&cur_game, cur_game->rows, cur_game->cols);
+   int a, b;
+    for(b = 0; b < cur_game->cols; b++)
+    {
+        int empty;
+
+        for(empty = cur_game->rows; empty>=0 && ((*(cur_game->cells+(empty * cur_game->cols + b))) !=-1); empty--);
+        for(a = empty-1; a >=0; a--)
+        {
+            if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1)
+            {
+                (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a * cur_game->cols + b)));
+                (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
+                empty--;
+            }
+        }
+    }
+ int count; 
+   for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
+                count++;
+        }
+    }
+    if(count == (cur_game->rows * cur_game->cols))
+        return 0;
     return 1;
-};
+    
+}
 
 int move_a(game * cur_game) //slide left
 {
-    //YOUR CODE STARTS HERE
+    game * copy_game = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+    int i, j;
+    for(i = 0; i < cur_game->rows; i++)
+    {
+        int empty;
+        for(empty = 0; empty<cur_game->cols && ((*(cur_game->cells+(i * cur_game->cols + empty))) !=-1); empty++);
+        for(j = empty+1; j < cur_game->cols; j++)
+        {
+            if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
+            {
+                (*(cur_game->cells+(i * cur_game->cols + empty))) = (*(cur_game->cells+(i * cur_game->cols + j)));
+                        
+                (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+                    
+                empty++;
+            }
+        }
+    }
 
+    int m, n;
+    for(m = 0; m < cur_game->rows; m++)
+    {
+        for(n = 0; n < cur_game->cols; n++)
+        {
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
+
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+(m * cur_game->cols + (n+1))) ))
+            {
+                (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
+                cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
+                (*(cur_game->cells+(m * cur_game->cols + (n+1))) = -1);
+            }
+        }
+    }
+
+   // slideup(&cur_game, cur_game->rows, cur_game->cols);
+   int a, b;
+    for(a = 0; a < cur_game->rows;a++)
+    {
+        int empty;
+        for(empty = 0; empty<cur_game->cols && ((*(cur_game->cells+(a * cur_game->cols + empty))) !=-1); empty++);
+        for(b = empty+1; b < cur_game->cols; b++)
+        {
+            if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1)
+            {
+                (*(cur_game->cells+(a * cur_game->cols + empty))) = (*(cur_game->cells+(a * cur_game->cols + b)));
+                        
+                (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
+                    
+                empty++;
+            }
+        }
+    }
+     int count; 
+   for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
+                count++;
+        }
+    }
+    if(count == (cur_game->rows * cur_game->cols))
+        return 0;
     return 1;
-};
+}
 
 int move_d(game * cur_game){ //slide to the right
-    //YOUR CODE STARTS HERE
+game * copy_game = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+    int i, j;
+    for(i = 0; i < cur_game->rows; i++)
+    {
+        int empty;
+        for(empty = cur_game->cols-1; empty>=0 && ((*(cur_game->cells+(i * cur_game->cols + empty))) !=-1); empty--);
+        for(j = empty-1; j >= 0; j--)
+        {
+            if(*(cur_game->cells+(i * cur_game->cols + j)) !=-1)
+            {
+                (*(cur_game->cells+(i * cur_game->cols + empty))) = (*(cur_game->cells+(i * cur_game->cols + j)));
+                        
+                (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+                    
+                empty--;
+            }
+        }
+    }
 
+    int m, n;
+    for(m = 0; m < cur_game->rows; m++)
+    {
+        for(n = cur_game->cols; n >=0 ; n--)
+        {
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == -1) continue;
+
+            if((*(cur_game->cells+(m * cur_game->cols + n))) == (*(cur_game->cells+(m * cur_game->cols + (n-1))) ))
+            {
+                (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
+                cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
+                (*(cur_game->cells+(m * cur_game->cols + (n-1))) = -1);
+            }
+        }
+    }
+
+   // slideup(&cur_game, cur_game->rows, cur_game->cols);
+   int a, b;
+    for(a = 0; a < cur_game->rows; a++)
+    {
+        int empty;
+        for(empty = cur_game->cols-1; empty>=0 && ((*(cur_game->cells+(a * cur_game->cols + empty))) !=-1); empty--);
+        for(b = empty-1; b >= 0; b--)
+        {
+            if(*(cur_game->cells+(a * cur_game->cols + b)) !=-1)
+            {
+                (*(cur_game->cells+(a * cur_game->cols + empty))) = (*(cur_game->cells+(a * cur_game->cols + b)));
+                        
+                (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
+                    
+                empty--;
+            }
+        }
+    }
+
+    int count; 
+   for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
+                count++;
+        }
+    }
+    if(count == (cur_game->rows * cur_game->cols))
+        return 0;
     return 1;
-};
+}
 
 int legal_move_check(game * cur_game)
 /*! Given the current game check if there are any legal moves on the board. There are
     no legal moves if sliding in any direction will not cause the game to change.
 	Return 1 if there are possible legal moves, 0 if there are none.
+    //1 if any empty spaces on board or any 2 adjacent tiles on board
+    //otherwise return 0
+    
  */
 {
-    //YOUR CODE STARTS HERE
+    game * copy_game2 = make_game(cur_game->rows, cur_game->cols);
+   // int count;
+    //int res = 0;
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game2->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+    game * copy_game3 = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game3->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+    game * copy_game4 = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game4->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }game * copy_game5 = make_game(cur_game->rows, cur_game->cols);
+    for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             *(copy_game5->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+        }
+    }
+    //values being changed that's why not working
+    if(move_s(copy_game2) || move_a(copy_game3) || move_d(copy_game4) || move_w(copy_game5) == 1)
+       return 1;
+    /*for(int a = 0; a < cur_game->rows; a++)
+    {
+        for(int b = 0; b < cur_game->cols; b++)
+        {
+             if(*(copy_game2->cells + (a * cur_game->cols + b)) == -1)
+                count++;
+        }
+    }
+    if(count == 0)
+        return 0;*/
+    //if(move_s(copy_game2) + move_a(copy_game2) + move_d(copy_game2) + move_w(copy_game2) == 0)
+      //  return 0;*/
 
-    return 1;
+    return 0;
 }
 
 
