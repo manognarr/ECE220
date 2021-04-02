@@ -90,6 +90,7 @@ int move_w(game * cur_game)
 */
 {
     //slideup(&cur_game, cur_game->rows, cur_game->cols);
+    int moved = 0;
     game * copy_game = make_game(cur_game->rows, cur_game->cols);
     for(int a = 0; a < cur_game->rows; a++)
     {
@@ -115,6 +116,7 @@ int move_w(game * cur_game)
                // printf("%s", "in the slideup if ");
                 (*(cur_game->cells+(empty * cur_game->cols + j))) = (*(cur_game->cells+(i * cur_game->cols + j)));
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+                moved++;
                 empty++;
             }
         }
@@ -132,6 +134,7 @@ int move_w(game * cur_game)
                 (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
                 (*(cur_game->cells+((m+1) * cur_game->cols + n)) = -1);
+                moved++;
             }
         }
     }
@@ -150,21 +153,18 @@ int move_w(game * cur_game)
             {
                 (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a* cur_game->cols + b)));
                (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
+               moved++;
                 empty++;
             }
         }
     }
-     int count; 
-   for(int a = 0; a < cur_game->rows; a++)
+   
+    
+    if(moved == 0)
     {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
-                count++;
-        }
-    }
-    if(count == (cur_game->rows * cur_game->cols))
         return 0;
+    }
+        
     return 1;
 }
 
@@ -182,6 +182,7 @@ int move_s(game * cur_game) //slide down
         }
     }
  int i, j;
+ int moved = 0;
     for(j = 0; j < cur_game->cols; j++)
     {
         int empty;
@@ -193,6 +194,7 @@ int move_s(game * cur_game) //slide down
             {
                 (*(cur_game->cells+(empty * cur_game->cols + j))) = (*(cur_game->cells+(i * cur_game->cols + j)));
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
+                moved++;
                 empty--;
             }
         }
@@ -210,6 +212,7 @@ int move_s(game * cur_game) //slide down
                 (*(cur_game->cells+(m* cur_game->cols + n)) *= 2);
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
                 (*(cur_game->cells+((m-1) * cur_game->cols + n)) = -1);
+                moved++;
             }
         }
     }
@@ -228,26 +231,22 @@ int move_s(game * cur_game) //slide down
                 (*(cur_game->cells+(empty * cur_game->cols + b))) = (*(cur_game->cells+(a * cur_game->cols + b)));
                 (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
                 empty--;
+                moved++;
             }
         }
     }
- int count; 
-   for(int a = 0; a < cur_game->rows; a++)
+ 
+    if(moved == 0)
     {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
-                count++;
-        }
+        return 0; 
     }
-    if(count == (cur_game->rows * cur_game->cols))
-        return 0;
-    return 1;
+     return 1;
     
 }
 
 int move_a(game * cur_game) //slide left
 {
+    int moved = 0;
     game * copy_game = make_game(cur_game->rows, cur_game->cols);
     for(int a = 0; a < cur_game->rows; a++)
     {
@@ -270,6 +269,7 @@ int move_a(game * cur_game) //slide left
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
                     
                 empty++;
+                moved++;
             }
         }
     }
@@ -286,6 +286,7 @@ int move_a(game * cur_game) //slide left
                 (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
                 (*(cur_game->cells+(m * cur_game->cols + (n+1))) = -1);
+                moved++;
             }
         }
     }
@@ -303,22 +304,16 @@ int move_a(game * cur_game) //slide left
                 (*(cur_game->cells+(a * cur_game->cols + empty))) = (*(cur_game->cells+(a * cur_game->cols + b)));
                         
                 (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
-                    
+                    moved++;
                 empty++;
             }
         }
     }
-     int count; 
-   for(int a = 0; a < cur_game->rows; a++)
+
+    if(moved == 0)
     {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
-                count++;
-        }
+        return 0; 
     }
-    if(count == (cur_game->rows * cur_game->cols))
-        return 0;
     return 1;
 }
 
@@ -332,6 +327,7 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
         }
     }
     int i, j;
+    int moved = 0;
     for(i = 0; i < cur_game->rows; i++)
     {
         int empty;
@@ -343,7 +339,7 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
                 (*(cur_game->cells+(i * cur_game->cols + empty))) = (*(cur_game->cells+(i * cur_game->cols + j)));
                         
                 (*(cur_game->cells+(i * cur_game->cols + j))) = -1;
-                    
+                 moved++;   
                 empty--;
             }
         }
@@ -361,6 +357,7 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
                 (*(cur_game->cells+(m * cur_game->cols + n)) *= 2);
                 cur_game->score += (*(cur_game->cells+(m* cur_game->cols + n)));
                 (*(cur_game->cells+(m * cur_game->cols + (n-1))) = -1);
+                moved++;
             }
         }
     }
@@ -378,23 +375,17 @@ game * copy_game = make_game(cur_game->rows, cur_game->cols);
                 (*(cur_game->cells+(a * cur_game->cols + empty))) = (*(cur_game->cells+(a * cur_game->cols + b)));
                         
                 (*(cur_game->cells+(a * cur_game->cols + b))) = -1;
-                    
+                moved++;
                 empty--;
             }
         }
     }
 
-    int count; 
-   for(int a = 0; a < cur_game->rows; a++)
+   
+    if(moved == 0)
     {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             if(*(copy_game->cells+(a * cur_game->cols + b)) ==  *(cur_game->cells+(a * cur_game->cols + b)))
-                count++;
-        }
-    }
-    if(count == (cur_game->rows * cur_game->cols))
         return 0;
+    }
     return 1;
 }
 
@@ -407,54 +398,34 @@ int legal_move_check(game * cur_game)
     
  */
 {
-    game * copy_game2 = make_game(cur_game->rows, cur_game->cols);
-   // int count;
-    //int res = 0;
-    for(int a = 0; a < cur_game->rows; a++)
+    for(int t = 0; t < cur_game->rows; t++)
     {
         for(int b = 0; b < cur_game->cols; b++)
         {
-             *(copy_game2->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
+            if( *(cur_game->cells + t*cur_game->cols+b) == -1)
+                return 1;
+            if(b > 0 )      //left case
+            {
+                if(*(cur_game->cells + t*cur_game->cols+(b-1) ) == *(cur_game->cells + t*cur_game->cols+(b)))
+                    return 1;
+            }
+             if(b < cur_game->cols-1 )      //left case
+            {
+                if(*(cur_game->cells + t*cur_game->cols+(b+1) ) == *(cur_game->cells + t*cur_game->cols+(b)))
+                    return 1;
+            }
+            if(t < cur_game->rows-1 )      //left case
+            {
+                if(*(cur_game->cells + (t+1)*cur_game->cols+b ) == *(cur_game->cells + t*cur_game->cols+b))
+                    return 1;
+            }
+            if(t > 0 )      //left case
+            {
+                if(*(cur_game->cells + (t-1)*cur_game->cols+b ) == *(cur_game->cells + t*cur_game->cols+b))
+                    return 1;
+            }
         }
     }
-    game * copy_game3 = make_game(cur_game->rows, cur_game->cols);
-    for(int a = 0; a < cur_game->rows; a++)
-    {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             *(copy_game3->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
-        }
-    }
-    game * copy_game4 = make_game(cur_game->rows, cur_game->cols);
-    for(int a = 0; a < cur_game->rows; a++)
-    {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             *(copy_game4->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
-        }
-    }game * copy_game5 = make_game(cur_game->rows, cur_game->cols);
-    for(int a = 0; a < cur_game->rows; a++)
-    {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             *(copy_game5->cells + (a * cur_game->cols + b)) =  *(cur_game->cells+ (a * cur_game->cols + b));
-        }
-    }
-    //values being changed that's why not working
-    if(move_s(copy_game2) || move_a(copy_game3) || move_d(copy_game4) || move_w(copy_game5) == 1)
-       return 1;
-    /*for(int a = 0; a < cur_game->rows; a++)
-    {
-        for(int b = 0; b < cur_game->cols; b++)
-        {
-             if(*(copy_game2->cells + (a * cur_game->cols + b)) == -1)
-                count++;
-        }
-    }
-    if(count == 0)
-        return 0;*/
-    //if(move_s(copy_game2) + move_a(copy_game2) + move_d(copy_game2) + move_w(copy_game2) == 0)
-      //  return 0;*/
 
     return 0;
 }
@@ -648,9 +619,9 @@ int process_turn(const char input_char, game* cur_game) //returns 1 if legal mov
 		 print_game(cur_game);
     } 
 
-    if( legal_move_check(cur_game) == 0){  //check if the newly spawned tile results in game over.
-        printf("Game Over!\n");
-        return 0;
+   if( legal_move_check(cur_game) == 0){  //check if the newly spawned tile results in game over.
+      printf("Game Over!\n");
+       return 0;
     }
     return 1;
 }
