@@ -1,311 +1,263 @@
+//Partners: smruthi2, manogna3
+//Intro: In this program, we use linked list, file input, output, and pointers to access a matrix in a file and order
+//the matrix by row and column and display it in an output file. The data is stored in the format of tuples in a linked list
+//which we iterate through to insert, replace and delete nodes based on the values/and order.
+
 #include "sparsemat.h"
- 
 #include <stdio.h>
 #include <stdlib.h>
- 
- 
- 
-/*
-load_tuples should open a file with the name 'input_file', read the data from the file,
-and return a matrix of the list of tuples type. If any coordinates repeat in the input file,
-the newer coordinates ( a lower line closer to the end of  the text document ) should overwrite the old line.
-If there is an entry with a value of 0 then the corresponding node should be deleted if it exists.
-The elements in the input text file may be unordered (unlike the example text file above),
-but the list of tuples returned will need to be in order.
-You do not have to handle cases where the input_file doesn't match the specified format.
- 
- 
-*/
- 
+
 sp_tuples * load_tuples(char* input_file)
 {
-   FILE *openfile;
-  
-   int r=0;
-   int c=0;
-   int row = 0;
-   int col = 0;
-   float value=0.0;
-   openfile=fopen(input_file, "r");
-   sp_tuples *tuplesptr=malloc(sizeof(sp_tuples));
-  
-   fscanf(openfile, "%d  %d", &r, &c);
-   tuplesptr->m=r;
-   tuplesptr->n=c;
-   tuplesptr->nz = 0;
-   tuplesptr->tuples_head = NULL;
-  
- 
-           while(!(feof(openfile)))
-           {
-               fscanf(openfile, "%d %d %fl", &row, &col, &value);
-               set_tuples(tuplesptr, row, col, value);
-           }
-      fclose(openfile);
- 
-   return tuplesptr;
+  FILE *openfile; //create pointer to file
+   int r=0; //initialize row variable for loading row size
+  int c=0; //initialize column variable for loading column size
+  int row = 0; //initialize row variable for loading each value at specified row in matrix
+  int col = 0; //initialize column variable for loading each value  at specified column in matrix
+  float value=0.0; //initialize value 
+  openfile=fopen(input_file, "r"); //open file to read
+  sp_tuples *tuplesptr=malloc(sizeof(sp_tuples)); //allocate memory to point to tuples
+   fscanf(openfile, "%d  %d", &r, &c); //read row and column size
+  tuplesptr->m=r; //set row size member to r
+  tuplesptr->n=c; //set column size member to c
+  tuplesptr->nz = 0; //initialize nz to 0
+  tuplesptr->tuples_head = NULL; //set head to NULL
+           while(!(feof(openfile))) //loop to iterate through file until EOF 
+          {
+              fscanf(openfile, "%d %d %fl", &row, &col, &value); //read corresponding row, column and value 
+              set_tuples(tuplesptr, row, col, value); //call set_tuples to update the tuples
+          }
+     fclose(openfile); //close the file
+  return tuplesptr; //return the pointer to tuples
 }
- 
- 
 double gv_tuples(sp_tuples * mat_t,int row,int col)
-//gv_tuples return the value of the element at the given row and column within the matrix.
+
 {
-   sp_tuples_node *node;
-   double value = 0.0;
-   node = mat_t->tuples_head;
-   while(node != NULL)
-   {
-       if(node->row == row && node->col == col)
-       {
-           value = node->value;
-       }
-       node = node->next;
-   }
-   return value;
+  sp_tuples_node *node; //create node to iterate through linked list
+  double value = 0.0; //initialize value variable
+  node = mat_t->tuples_head; //initialize node to point to tuples head
+  while(node != NULL) //iterate until node is equal to NULL
+  {
+      if(node->row == row && node->col == col) //check if row and column members of node are the same as the parameters
+      {
+          value = node->value; //if they are, set value to node value member
+      }
+      node = node->next; //increment node to point to the next node
+  }
+  return value; //return the value
 }
- 
- 
-/*set_tuples sets the element at row and col to value. This function will need to do several things:
- 
-if value is 0, it will need to find the node at row and col if it exists, and delete it from the list.
-Be sure to free the nodes from memory or they will be lost forever.
-For any other value, the function will need to find the correct location for the node within the sorted linked list.
-If the entry already exists, the function should replace the old value.
-If the entry doesn't exist, a node should be created and inserted into the linked list.*/
- 
+
 void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 {
-   sp_tuples_node *curnode;
-   sp_tuples_node *temp;
-   
-  // int index = (row * mat_t->n + col);
-  // int rowfound=0;
+  sp_tuples_node *curnode; //declare node pointer to iterate through linked list
+  sp_tuples_node *temp; //declare temp pointer for inserting in linked list
  
-   curnode=mat_t->tuples_head;
-   if (value==0)
-   {
-       if(gv_tuples(mat_t, row, col)!=0)
-       {
-           while (curnode!=NULL && curnode->next!=NULL)
-           {
-               if(curnode->next->row==row && curnode->next->col == col)
-               {
-                   if(curnode == mat_t->tuples_head)
-                   {
-                       temp = curnode;
-                       mat_t->tuples_head = mat_t->tuples_head->next;
-                       free(temp);
-                       mat_t->nz--;
-                   }
-                   temp=curnode->next;
-                   curnode->next=temp->next;
-                   free(temp);
-                   mat_t->nz--;
-               }
-               curnode=curnode->next;
-           }
-       }
-   }
-   
-    else{   //all other values
-       if(gv_tuples(mat_t, row, col)!=0)     //if value already exists, replace the value
-       {
-           while(curnode != NULL)
-           {
-               if(curnode->row == row && curnode->col == col)
-               {
-                   curnode->value = value;
-                   return;
-               }
-               curnode = curnode->next;
-           }
-       }
-       else                                //if value doesn't exist, create node and insert into linked list
-       {
-           sp_tuples_node *nodetraverse = mat_t->tuples_head;
-            sp_tuples_node *nodetraverse2 =NULL;
-           if(nodetraverse == NULL)
-           {
-              sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node));
-               mat_t->tuples_head = newnode2;
-               newnode2->next = NULL;
-               newnode2->row = row;
-               newnode2->col = col;
-               newnode2->value = value;
-               mat_t->nz++;
-               return;
-           }
-            
-        else{
-           while(nodetraverse != NULL)
-           {
-              
-              if((nodetraverse->row > row && nodetraverse==mat_t->tuples_head) || 
-              (nodetraverse->row == row && nodetraverse->col > col && nodetraverse==mat_t->tuples_head))
+ // int index = (row * mat_t->n + col);
+ // int rowfound=0;
+  curnode=mat_t->tuples_head; //initialize curnode to tuples head
+  if (value==0) //check if value is 0
+  {
+      if(gv_tuples(mat_t, row, col)!=0) //if it is, also check if the value exists
+      {
+          while (curnode!=NULL && curnode->next!=NULL) //check if node pointer and next that is iterating is not NULL
+          {
+              if(curnode->next->row==row && curnode->next->col == col) //check if next node is equal to row and column passed in
               {
-                  sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node));
-                  newnode2->next = mat_t->tuples_head;
-                  mat_t->tuples_head = newnode2;
-                  mat_t->nz++;
-                  newnode2->row= row;
-                  newnode2->col = col;
-                  newnode2->value = value;
-                  return;
+                  if(curnode == mat_t->tuples_head) //check if location of curnode is pointing to head, if it is insert value at head
+                  {
+                      temp = curnode; //set temp to curnode which points to head
+                      mat_t->tuples_head = mat_t->tuples_head->next; //set head to next node
+                      free(temp); //free temp allocated memory to delete node
+                      mat_t->nz--; //decrement nz member of mat_t
+                  }
+                  temp=curnode->next; //if not equal to head, then set temp node to curnode next
+                  curnode->next=temp->next; //set temp next to curnode next 
+                  free(temp);  //free, delete temp node 
+                  mat_t->nz--; //decrement nz 
               }
-                
-               else if (nodetraverse->row > row )
-               {
-                   
-                  // printf("in the if head");
-                   sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node));
-                   
-                    newnode2->next = nodetraverse;
-                    if(nodetraverse2 != NULL)
-                    {
-                        nodetraverse2->next= newnode2;
-                    }
-                        
-                    newnode2->row=row;
-                    newnode2->col=col;
-                    newnode2->value=value;
-                    mat_t->nz++;
-                    //nodetraverse2 = nodetraverse;
-                    return;
-                    
-               }
-               else if(nodetraverse->row == row)
-               {
-                   if(nodetraverse->col > col)
+              curnode=curnode->next; //increment curnode to next node
+          }
+      }
+  }
+ 
+   else{   //all other values
+      if(gv_tuples(mat_t, row, col)!=0)     //if value already exists, replace the value
+      {
+          while(curnode != NULL) //loop until curnode is NULL
+          {
+              if(curnode->row == row && curnode->col == col) //check if curnode row is equal to row and curnode col is equal to col
+              {
+                  curnode->value = value; //set curnode value to value
+                  return; //break once value has been set
+              }
+              curnode = curnode->next; //increment curnode to next node
+          }
+      }
+      else                                //if value doesn't exist, create node and insert into linked list
+      {
+          sp_tuples_node *nodetraverse = mat_t->tuples_head; //initialize nodetraverse to point to tuples head
+           sp_tuples_node *nodetraverse2 =NULL; //initialize nodetraverse2 to point to NULL
+          if(nodetraverse == NULL) //if nodetraverse is NULL, and linkedlist is empty
+          {
+             sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node)); //allocate memory to insert newnode2
+              mat_t->tuples_head = newnode2; //point head to newnode2
+              newnode2->next = NULL; //point next of newnode2 to NULL as there is only one element
+              newnode2->row = row; //set newnode2 row member to row
+              newnode2->col = col; //set newnode2 column member to col
+              newnode2->value = value; //set newnode2 value to value
+              mat_t->nz++; //increment nz member of mat_t
+              return; //break out of loop
+          }
+          
+       else{ //if none of the above
+          while(nodetraverse != NULL) //loop until nodetraverse is NULL
+          {
+            //check if current node is greater than row and it is at head, or if nodetraverse row is the same as row, but col is greater at tuples head position
+             if((nodetraverse->row > row && nodetraverse==mat_t->tuples_head) ||
+             (nodetraverse->row == row && nodetraverse->col > col && nodetraverse==mat_t->tuples_head))
+             {
+                 sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node)); //allocate memory for newnode2 to insert
+                 newnode2->next = mat_t->tuples_head; //set newnode2 next to point to tuples head 
+                 mat_t->tuples_head = newnode2; //set head to newnode2 (insert node before head)
+                 mat_t->nz++; //increment nz 
+                 newnode2->row= row; //set newnode2 member to row
+                 newnode2->col = col; //set newnode2 member to col 
+                 newnode2->value = value; //set newnode2 member to value
+                 return; //break out of loop
+             }
+              
+              else if (nodetraverse->row > row ) //check if nodetraverse member row is greater than row
+              {
+                 
+                 // printf("in the if head");
+                  sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node)); //create newnode2 and allocate memory for it
+                 
+                   newnode2->next = nodetraverse; 
+                   if(nodetraverse2 != NULL) //check if nodetraverse2 is not equal to NULL
                    {
-                       sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node));
-                    newnode2->next = nodetraverse;
-                    if(nodetraverse2 != NULL)
-                    {
-                        nodetraverse2->next= newnode2;
-                    }
-                    newnode2->row=row;
-                    newnode2->col=col;
-                    newnode2->value=value;
-                    mat_t->nz++;
-                    return;
+                       nodetraverse2->next= newnode2; //insert newnode2 before nodetraverse
                    }
-                   
-               }
-               
-               
-            if(nodetraverse->next == NULL)
-            {
-                sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node));
-                nodetraverse->next = newnode2;
-               newnode2->next = NULL;
-               newnode2->row = row;
-               newnode2->col = col; 
-               newnode2->value = value;
-               mat_t->nz++;
-               return;
-            }
-            nodetraverse2 = nodetraverse;
-            nodetraverse = nodetraverse->next;
-
+                      
+                   newnode2->row=row; //set newnode2 member to row
+                   newnode2->col=col; //set newnode2 member to column
+                   newnode2->value=value; //set newnode2 value to value
+                   mat_t->nz++; //increment nz
+                   //nodetraverse2 = nodetraverse;
+                   return;
+                  
+              }
+              else if(nodetraverse->row == row) //check if nodetraverse row is equal to row
+              {
+                  if(nodetraverse->col > col) //check if nodetraverse col is greater
+                  {
+                      sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node)); //allocate memory for newnode2
+                   newnode2->next = nodetraverse; 
+                   if(nodetraverse2 != NULL) //check if nodetraverse2 is not equal NULL
+                   {
+                       nodetraverse2->next= newnode2; //insert newnode2 before greater column
+                   }
+                   //set corresponding row, col and value members for newnode2 and increment nz member
+                   newnode2->row=row; 
+                   newnode2->col=col;
+                   newnode2->value=value;
+                   mat_t->nz++;
+                   return;
+                  }
+                 
+              }
+             
+             
+           if(nodetraverse->next == NULL) //check if nodetraverse next is NULL, at the end of linked list
+           {
+               sp_tuples_node *newnode2= (sp_tuples_node *)malloc(sizeof(sp_tuples_node)); //allocate memory for newnode2
+               nodetraverse->next = newnode2; //insert newnode2 at the end
+              newnode2->next = NULL; //set newnode2 next is NULL as it is at the end of the linked list
+              //set newnode2 corresponding row, col and value members and increment nz members
+              newnode2->row = row;
+              newnode2->col = col;
+              newnode2->value = value;
+              mat_t->nz++;
+              return;
            }
-   
-        }
+           
+           //update nodetraverse2 and nodetraverse to next
+           nodetraverse2 = nodetraverse;
+           nodetraverse = nodetraverse->next;
+ 
+          }
+ 
        }
-   }  
-   return;
+      }
+  } 
+  return;
 }
- 
- 
- 
- 
- //save_tuples writes the data in a sparse matrix structure to a text file in the format specified above.
- // Because of the way the linked lists are ordered, writing the entries of the matrix as you traverse the list 
- //will give an output in row major order. 
- //Your text file output must be in this order even though load_tuples should able to handle reading un-ordered text files.
 
-
+ 
 void save_tuples(char * file_name, sp_tuples * mat_t)
 {
-
-FILE *outputfile=fopen(file_name, "w");
-fprintf(outputfile, "%d %d \n", mat_t->m, mat_t->n);
-
- sp_tuples_node *node;
-   
-   node = mat_t->tuples_head;
-   while(node != NULL)
-   {
-       fprintf(outputfile, "%d %d %lf \n", node->row, node->col, node->value);
-
-       node = node->next;
-   }
-
-    fclose(outputfile);
-   return;
+ 
+FILE *outputfile=fopen(file_name, "w"); //open the file to write 
+fprintf(outputfile, "%d %d \n", mat_t->m, mat_t->n); //write the row and column size to the file
+ 
+sp_tuples_node *node; //declare node
+ 
+  node = mat_t->tuples_head; //set node to mat_t tuples head
+  while(node != NULL) //loop until node is NULL
+  {
+      fprintf(outputfile, "%d %d %lf \n", node->row, node->col, node->value); //write the node row, column and value to the file
+ 
+      node = node->next; //update node to the next 
+  }
+ 
+   fclose(outputfile); //close the file
+  return;
 }
- 
- 
- 
 sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB)
 {
-    sp_tuples *matC = (sp_tuples *)malloc(sizeof(sp_tuples));
-    matC->m = matA->m;
-    matC->n = matA->n;
-    matC->nz = 0;
-    matC->tuples_head = NULL;
-    sp_tuples_node *node = matA->tuples_head;
-    
-    while(node != NULL)
-    {
-        double value = node->value;
-        int col = node->col;
-        int row = node->row;
-        set_tuples(matC, row, col, value);
-        node = node->next;
-    }
-    
-    node = matB->tuples_head;
-    while(node != NULL)
-    {
-        double value = node->value;
-        int col = node->col;
-        int row = node->row;
-        double matcvalue = gv_tuples(matC, row, col);
-        set_tuples(matC, row, col, matcvalue+value);
-        node = node->next;
-    }
-return matC;
- 
- 
-}
- 
- 
- 
-sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
-   return matA;
- 
-}
- 
- 
+   sp_tuples *matC = (sp_tuples *)malloc(sizeof(sp_tuples)); //allocate memory for the matrix that holds the sum
+   matC->m = matA->m; //set row size
+   matC->n = matA->n; //set column size
+   matC->nz = 0; //initialize nz to 0
+   matC->tuples_head = NULL; //set tuples head of matc to NULL
+   sp_tuples_node *node = matA->tuples_head;  //create node to iterate through matA
   
-void destroy_tuples(sp_tuples * mat_t){
-    sp_tuples_node *node;
-   
-   node = mat_t->tuples_head;
-   while(node != NULL)
+   while(node != NULL) //loop until node is NULL
    {
-       free(node);
-
-       node = node->next;
+       double value = node->value; //set value variable to node value
+       int col = node->col; //set col variable to node col
+       int row = node->row; //set row variable to node row
+       set_tuples(matC, row, col, value); //set_tuples function to matA values
+       node = node->next; //update node to next 
    }
-   free(mat_t);
-   return;
-} 
+  
+   node = matB->tuples_head; //set node to matB tuples head
+   while(node != NULL) //loop until node is NULL
+   {
+       double value = node->value; //set value variable to matB node value
+       int col = node->col; //set col variable to matB node col
+       int row = node->row; //set row variable to matB node row
+       double matcvalue = gv_tuples(matC, row, col); //gv_tuples to get value and put it in matcvalue variable
+       set_tuples(matC, row, col, matcvalue+value); //set_tuples function to add matA values to matB values
+       node = node->next; //update node to next
+   }
+return matC; //return matrix with added elements
+}
+sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
+  return matA;
+}
+ void destroy_tuples(sp_tuples * mat_t){
+   sp_tuples_node *node; //create node
  
+  node = mat_t->tuples_head; //set it to mat_t tuples head
+  while(node != NULL) //iterate until node is NULL
+  {
+      free(node); //free the node 
  
- 
- 
- 
+      node = node->next; //update the node to nex
+  }
+  free(mat_t); //free the matrix, mat_t
+  return;
+}
  
  
  
