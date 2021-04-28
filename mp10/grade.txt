@@ -1,0 +1,103 @@
+Compilation Results:
+********************
+
+load_tuples test: 10 pts total
+Test 1: load tuple
++5: load_tuples: m,n,nnz match
++5: load_tuples: nodes match
+
+gv_tuples test: 6 pts total
+Test 2: gv
++6: gv_tuples
+
+set_tuples test: 44 pts total
+Test 3-0: set
++6: set_tuples: delete node at tail
+Test 3-1: set
++6: set_tuples: add node at head
+Test 3-2: set
++6: set_tuples: add node in the middle
+Test 3-3: set
++6: set_tuples: add node at tail
+Test 3-4: set
+values in node does not match
+Test 3-5: set
+values in node does not match
+Test 3-6: set
++6: set_tuples: delete node at tail
+
+add_tuples test: 15 pts total
+Test 4: add
+ +15: add_tuples pass
+
+save_tuples test: 10 pts total
+Test 6: save
+testing save_tuples, saving to save_test_tuples.txt
+
+Printing diff of save tuples. If empty, 10 pts
+diff: grade/save_test_tuples.txt: No such file or directory
+
+10
+destroy_tuples test: 5 pts total
+Printing valgrind output. If no memory leaks/errors, 5 pts
+==19386== Memcheck, a memory error detector
+==19386== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==19386== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==19386== Command: ./test0 7
+==19386== 
+==19386== Invalid read of size 8
+==19386==    at 0x401F59: destroy_tuples (sparsemat.c:256)
+==19386==    by 0x401441: main (test0.c:457)
+==19386==  Address 0x5205630 is 16 bytes inside a block of size 24 free'd
+==19386==    at 0x4C2B06D: free (vg_replace_malloc.c:540)
+==19386==    by 0x401F54: destroy_tuples (sparsemat.c:254)
+==19386==    by 0x401441: main (test0.c:457)
+==19386==  Block was alloc'd at
+==19386==    at 0x4C29F73: malloc (vg_replace_malloc.c:309)
+==19386==    by 0x400AF6: set_tuples_gold (test0.c:77)
+==19386==    by 0x400D44: load_tuples_gold (test0.c:162)
+==19386==    by 0x40140C: main (test0.c:454)
+==19386== 
+==19386== Invalid read of size 8
+==19386==    at 0x401F59: destroy_tuples (sparsemat.c:256)
+==19386==    by 0x40144D: main (test0.c:458)
+==19386==  Address 0x5206090 is 16 bytes inside a block of size 24 free'd
+==19386==    at 0x4C2B06D: free (vg_replace_malloc.c:540)
+==19386==    by 0x401F54: destroy_tuples (sparsemat.c:254)
+==19386==    by 0x40144D: main (test0.c:458)
+==19386==  Block was alloc'd at
+==19386==    at 0x4C29F73: malloc (vg_replace_malloc.c:309)
+==19386==    by 0x400AF6: set_tuples_gold (test0.c:77)
+==19386==    by 0x400D44: load_tuples_gold (test0.c:162)
+==19386==    by 0x40141A: main (test0.c:455)
+==19386== 
+==19386== Invalid read of size 8
+==19386==    at 0x401F59: destroy_tuples (sparsemat.c:256)
+==19386==    by 0x401459: main (test0.c:459)
+==19386==  Address 0x5206570 is 16 bytes inside a block of size 24 free'd
+==19386==    at 0x4C2B06D: free (vg_replace_malloc.c:540)
+==19386==    by 0x401F54: destroy_tuples (sparsemat.c:254)
+==19386==    by 0x401459: main (test0.c:459)
+==19386==  Block was alloc'd at
+==19386==    at 0x4C29F73: malloc (vg_replace_malloc.c:309)
+==19386==    by 0x401ADC: set_tuples (sparsemat.c:102)
+==19386==    by 0x401E84: add_tuples (sparsemat.c:229)
+==19386==    by 0x401431: main (test0.c:456)
+==19386== 
+==19386== 
+==19386== HEAP SUMMARY:
+==19386==     in use at exit: 0 bytes in 0 blocks
+==19386==   total heap usage: 65 allocs, 65 frees, 2,648 bytes allocated
+==19386== 
+==19386== All heap blocks were freed -- no leaks are possible
+==19386== 
+==19386== For lists of detected and suppressed errors, rerun with: -s
+==19386== ERROR SUMMARY: 60 errors from 3 contexts (suppressed: 0 from 0)
+
+Grade:
+******
+Late submission: 0
+Functionality: 76
+Comments and Style: 5
+Intro paragraph: 5
+Total: 86
